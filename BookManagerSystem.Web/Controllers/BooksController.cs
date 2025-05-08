@@ -80,17 +80,17 @@ namespace BookManagerSystem.Web.Controllers
             {
                 return NotFound();
             }
-            return View(book);
+
+            var viewData = _mapper.Map<BookEditVM>(book);
+            return View(viewData);
         }
 
         // POST: Books/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,PublishedDate")] Book book)
+        public async Task<IActionResult> Edit(int id, BookEditVM bookEdit)
         {
-            if (id != book.Id)
+            if (id != bookEdit.Id)
             {
                 return NotFound();
             }
@@ -99,12 +99,13 @@ namespace BookManagerSystem.Web.Controllers
             {
                 try
                 {
+                    var book = _mapper.Map<Book>(bookEdit);
                     _context.Update(book);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookExists(book.Id))
+                    if (!BookExists(bookEdit.Id))
                     {
                         return NotFound();
                     }
@@ -115,7 +116,7 @@ namespace BookManagerSystem.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(bookEdit);
         }
 
         // GET: Books/Delete/5

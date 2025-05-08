@@ -10,6 +10,7 @@ namespace BookManagerSystem.Web.MappingProfiles
         {
             CreateMap<Book, BookReadOnlyVM>();
             CreateMap<BookCreateVM, Book>();
+            CreateMap<BookEditVM, Book>().ReverseMap();
         }
     }
 }
