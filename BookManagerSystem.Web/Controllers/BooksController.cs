@@ -10,6 +10,7 @@ namespace BookManagerSystem.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private const string NameExistsValidationMessage = "Book Title already exists.";
 
         public BooksController(ApplicationDbContext context, IMapper mapper)
         {
@@ -57,6 +58,11 @@ namespace BookManagerSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreateVM bookCreate)
         {
+            if (await CheckIfTitleExists(bookCreate.Title)) 
+            {
+                ModelState.AddModelError(nameof(bookCreate.Title), NameExistsValidationMessage);
+            }
+
             if (ModelState.IsValid)
             {
                 var book = _mapper.Map<Book>(bookCreate);
@@ -93,6 +99,11 @@ namespace BookManagerSystem.Web.Controllers
             if (id != bookEdit.Id)
             {
                 return NotFound();
+            }
+
+            if (await CheckIfTitleExistsForEdit(bookEdit))
+            {
+                ModelState.AddModelError(nameof(bookEdit.Title), NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
@@ -134,7 +145,7 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
             var viewData = _mapper.Map<BookReadOnlyVM>(book);
-            return View(book);
+            return View(viewData);
         }
 
         // POST: Books/Delete/5
@@ -155,6 +166,18 @@ namespace BookManagerSystem.Web.Controllers
         private bool BookExists(int id)
         {
             return _context.Books.Any(e => e.Id == id);
+        }
+        // Check if Book Title Exists
+        private async Task<bool> CheckIfTitleExists(string title)
+        {
+            var lowercaseTitle = title.ToLower();
+            return await _context.Books.AnyAsync(e => e.Title.ToLower().Equals(lowercaseTitle));
+        }
+        private async Task<bool> CheckIfTitleExistsForEdit(BookEditVM bookEdit)
+        {
+            var lowercaseTitle = bookEdit.Title.ToLower();
+            return await _context.Books.AnyAsync(e =>
+                    e.Title.ToLower() == lowercaseTitle && e.Id != bookEdit.Id);
         }
     }
 }
