@@ -8,7 +8,7 @@ namespace BookManagerSystem.Web.MappingProfiles
     {
         public AutoMapperProfile()
         {
-            CreateMap<Book, IndexVM>();
+            CreateMap<Book, BookReadOnlyVM>();
         }
     }
 }

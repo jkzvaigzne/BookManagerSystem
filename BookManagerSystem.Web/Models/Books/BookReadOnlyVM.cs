@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookManagerSystem.Web.Models.Books
 {
-    public class IndexVM
+    public class BookReadOnlyVM
     {
         public int Id { get; set; }
         [Required]

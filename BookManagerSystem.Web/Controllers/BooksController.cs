@@ -22,7 +22,7 @@ namespace BookManagerSystem.Web.Controllers
         {
             var data = await _context.Books.ToListAsync();
             // Convert data model into view model - AutoMapper
-            var viewData = _mapper.Map<List<IndexVM>>(data);
+            var viewData = _mapper.Map<List<BookReadOnlyVM>>(data);
             // Return view model to the view
             return View(viewData);
         }
@@ -42,7 +42,8 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
 
-            return View(book);
+            var viewData = _mapper.Map<BookReadOnlyVM>(book);
+            return View(viewData);
         }
 
         // GET: Books/Create
