@@ -16,7 +16,8 @@ namespace BookManagerSystem.Web.Controllers
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Books.ToListAsync());
+            var data = await _context.Books.ToListAsync();
+            return View(data);
         }
 
         // GET: Books/Details/5
