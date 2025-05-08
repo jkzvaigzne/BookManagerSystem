@@ -1,23 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookManagerSystem.Web.Data;
+using BookManagerSystem.Web.Models.Books;
+using AutoMapper;
 
 namespace BookManagerSystem.Web.Controllers
 {
     public class BooksController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BooksController(ApplicationDbContext context)
+        public BooksController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            this._mapper = mapper;
         }
 
         // GET: Books
         public async Task<IActionResult> Index()
         {
             var data = await _context.Books.ToListAsync();
-            return View(data);
+            // Convert data model into view model - AutoMapper
+            var viewData = _mapper.Map<List<IndexVM>>(data);
+            // Return view model to the view
+            return View(viewData);
         }
 
         // GET: Books/Details/5
