@@ -133,7 +133,7 @@ namespace BookManagerSystem.Web.Controllers
             {
                 return NotFound();
             }
-
+            var viewData = _mapper.Map<BookReadOnlyVM>(book);
             return View(book);
         }
 

@@ -2,13 +2,13 @@
 
 namespace BookManagerSystem.Web.Models.Books
 {
-    public class BookReadOnlyVM
+    public class BookReadOnlyVM : BaseBookVM
     {
-        public int Id { get; set; }
         [Required]
         public string Title { get; set; }
         [Required]
         public string Author { get; set; }
+        [Display(Name = "Book Published Date")]
         public DateTime? PublishedDate { get; set; }
     }
 }
