@@ -9,6 +9,7 @@ namespace BookManagerSystem.Web.MappingProfiles
         public AutoMapperProfile()
         {
             CreateMap<Book, BookReadOnlyVM>();
+            CreateMap<BookCreateVM, Book>();
         }
     }
 }

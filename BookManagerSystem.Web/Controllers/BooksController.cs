@@ -53,19 +53,18 @@ namespace BookManagerSystem.Web.Controllers
         }
 
         // POST: Books/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Author,PublishedDate")] Book book)
+        public async Task<IActionResult> Create(BookCreateVM bookCreate)
         {
             if (ModelState.IsValid)
             {
+                var book = _mapper.Map<Book>(bookCreate);
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            return View(bookCreate);
         }
 
         // GET: Books/Edit/5
