@@ -8,8 +8,9 @@ namespace BookManagerSystem.Web.Controllers
     public class BooksController(IBookService _bookService): Controller
     {
         private const string NameExistsValidationMessage = "Book title already exists.";
-        
+
         // GET: Books
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             // Fetch all books using the book service
@@ -18,7 +19,8 @@ namespace BookManagerSystem.Web.Controllers
             return View(viewData);
         }
 
-        // GET: Books/Details/5
+        // GET: book/detail/5
+        [HttpGet("book/detail/{id:int}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,14 +37,15 @@ namespace BookManagerSystem.Web.Controllers
             return View(book);
         }
 
-        // GET: Books/Create
+        // GET: book/create
+        [HttpGet("book/create")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
-        [HttpPost]
+        // POST: book/create
+        [HttpPost("book/create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreateVM bookCreate)
         {
@@ -59,7 +62,8 @@ namespace BookManagerSystem.Web.Controllers
             return View(bookCreate);
         }
 
-        // GET: Books/Edit/5
+        // GET: book/edit/5
+        [HttpGet("book/edit/{id:int}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -75,8 +79,8 @@ namespace BookManagerSystem.Web.Controllers
             return View(book);
         }
 
-        // POST: Books/Edit/5
-        [HttpPost]
+        // POST: book/edit/5
+        [HttpPost("book/edit/{id:int}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, BookEditVM bookEdit)
         {
@@ -112,7 +116,8 @@ namespace BookManagerSystem.Web.Controllers
             return View(bookEdit);
         }
 
-        // GET: Books/Delete/5
+        // GET: book/delete/5
+        [HttpGet("book/delete/{id:int}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -128,8 +133,8 @@ namespace BookManagerSystem.Web.Controllers
             return View(book);
         }
 
-        // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: book/delete/5
+        [HttpPost("book/delete/{id:int}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
