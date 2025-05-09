@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using BookManagerSystem.Web.Models.Books;
 using BookManagerSystem.Web.Services;
+using BookManagerSystem.Web.Helpers.Validations;
 
 namespace BookManagerSystem.Web.Controllers
 {
     public class BooksController(IBookService _bookService): Controller
     {
-        private const string NameExistsValidationMessage = "Book title already exists.";
-
         // GET: Books
         [HttpGet("")]
         public async Task<IActionResult> Index()
@@ -51,7 +50,7 @@ namespace BookManagerSystem.Web.Controllers
         {
             if (await _bookService.CheckIfTitleExists(bookCreate.Title)) 
             {
-                ModelState.AddModelError(nameof(bookCreate.Title), NameExistsValidationMessage);
+                ModelState.AddModelError(nameof(bookCreate.Title), ValidationMessages.NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
@@ -91,7 +90,7 @@ namespace BookManagerSystem.Web.Controllers
 
             if (await _bookService.CheckIfTitleExistsForEdit(bookEdit))
             {
-                ModelState.AddModelError(nameof(bookEdit.Title), NameExistsValidationMessage);
+                ModelState.AddModelError(nameof(bookEdit.Title), ValidationMessages.NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
