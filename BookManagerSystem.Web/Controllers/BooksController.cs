@@ -1,30 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BookManagerSystem.Web.Data;
 using BookManagerSystem.Web.Models.Books;
-using AutoMapper;
+using BookManagerSystem.Web.Services;
 
 namespace BookManagerSystem.Web.Controllers
 {
-    public class BooksController : Controller
+    public class BooksController(IBookService _bookService): Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-        private const string NameExistsValidationMessage = "Book Title already exists.";
-
-        public BooksController(ApplicationDbContext context, IMapper mapper)
-        {
-            _context = context;
-            this._mapper = mapper;
-        }
-
+        private const string NameExistsValidationMessage = "Book title already exists.";
+        
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            var data = await _context.Books.ToListAsync();
-            // Convert data model into view model - AutoMapper
-            var viewData = _mapper.Map<List<BookReadOnlyVM>>(data);
-            // Return view model to the view
+            // Fetch all books using the book service
+            var viewData = await _bookService.GetAllBooksAsync();
+            // Pass the view model list to the view for rendering
             return View(viewData);
         }
 
@@ -36,15 +26,13 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var book = await _bookService.Get<BookReadOnlyVM>(id.Value);
             if (book == null)
             {
                 return NotFound();
             }
 
-            var viewData = _mapper.Map<BookReadOnlyVM>(book);
-            return View(viewData);
+            return View(book);
         }
 
         // GET: Books/Create
@@ -58,16 +46,14 @@ namespace BookManagerSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreateVM bookCreate)
         {
-            if (await CheckIfTitleExists(bookCreate.Title)) 
+            if (await _bookService.CheckIfTitleExists(bookCreate.Title)) 
             {
                 ModelState.AddModelError(nameof(bookCreate.Title), NameExistsValidationMessage);
             }
 
             if (ModelState.IsValid)
             {
-                var book = _mapper.Map<Book>(bookCreate);
-                _context.Add(book);
-                await _context.SaveChangesAsync();
+                await _bookService.Create(bookCreate);
                 return RedirectToAction(nameof(Index));
             }
             return View(bookCreate);
@@ -81,14 +67,12 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await _bookService.Get<BookEditVM>(id.Value);
             if (book == null)
             {
                 return NotFound();
             }
-
-            var viewData = _mapper.Map<BookEditVM>(book);
-            return View(viewData);
+            return View(book);
         }
 
         // POST: Books/Edit/5
@@ -101,7 +85,7 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
 
-            if (await CheckIfTitleExistsForEdit(bookEdit))
+            if (await _bookService.CheckIfTitleExistsForEdit(bookEdit))
             {
                 ModelState.AddModelError(nameof(bookEdit.Title), NameExistsValidationMessage);
             }
@@ -110,13 +94,11 @@ namespace BookManagerSystem.Web.Controllers
             {
                 try
                 {
-                    var book = _mapper.Map<Book>(bookEdit);
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
+                    await _bookService.Edit(bookEdit);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookExists(bookEdit.Id))
+                    if (!_bookService.BookExists(bookEdit.Id))
                     {
                         return NotFound();
                     }
@@ -138,14 +120,12 @@ namespace BookManagerSystem.Web.Controllers
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var book = await _bookService.Get<BookReadOnlyVM>(id.Value);
             if (book == null)
             {
                 return NotFound();
             }
-            var viewData = _mapper.Map<BookReadOnlyVM>(book);
-            return View(viewData);
+            return View(book);
         }
 
         // POST: Books/Delete/5
@@ -153,31 +133,8 @@ namespace BookManagerSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book != null)
-            {
-                _context.Books.Remove(book);
-            }
-
-            await _context.SaveChangesAsync();
+            await _bookService.Remove(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool BookExists(int id)
-        {
-            return _context.Books.Any(e => e.Id == id);
-        }
-        // Check if Book Title Exists
-        private async Task<bool> CheckIfTitleExists(string title)
-        {
-            var lowercaseTitle = title.ToLower();
-            return await _context.Books.AnyAsync(e => e.Title.ToLower().Equals(lowercaseTitle));
-        }
-        private async Task<bool> CheckIfTitleExistsForEdit(BookEditVM bookEdit)
-        {
-            var lowercaseTitle = bookEdit.Title.ToLower();
-            return await _context.Books.AnyAsync(e =>
-                    e.Title.ToLower() == lowercaseTitle && e.Id != bookEdit.Id);
         }
     }
 }
